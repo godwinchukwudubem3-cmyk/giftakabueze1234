@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Gift Hospital</title>
+    <style>
+        /* Modern Neon Cyber-Hospital Aesthetics */
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --border-glow: #38bdf8;
+            --accent-pink: #f43f5e;
+            --accent-green: #10b981;
+            --text-main: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            color: var(--border-glow);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-top: 5px;
+        }
+
+        /* Layout Architecture */
+        .game-grid {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        /* Interaction Stage */
+        .stage {
+            background-color: var(--card-bg);
+            border: 2px solid #1e293b;
+            border-radius: 16px;
+            height: 480px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.6), 0 12px 32px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding-bottom: 40px;
+        }
+
+        /* Floor Grid Effect */
+        .stage::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 100px;
+            background: linear-gradient(transparent, rgba(56, 189, 248, 0.05));
+            border-top: 2px solid rgba(56, 189, 248, 0.2);
+            z-index: 1;
+        }
+
+        /* Walking Character Engine */
+        .character-lane {
+            position: absolute;
+            bottom: 60px;
+            left: -150px; /* Start off-screen */
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+            transition: transform 0.1s linear;
+        }
+
+        .char-sprite {
+            font-size: 5.5rem;
+            line-height: 1;
+            user-select: none;
+        }
+
+        /* Animation States */
+        .walking {
+            animation: bobbing 0.4s infinite ease-in-out alternate;
+        }
+
+        @keyframes bobbing {
+            0% { transform: translateY(0) rotate(-3deg); }
+            100% { transform: translateY(-8px) rotate(3deg); }
+        }
+
+        /* Dialogue Speech Bubble */
+        .speech-bubble {
+            position: absolute;
+            bottom: 210px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: #ffffff;
+            color: #0f172a;
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            max-width: 260px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 5;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: #ffffff transparent;
+            display: block;
+            width: 0;
+        }
+
+        .speech-bubble.visible {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+        }
+
+        /* Interface Control Panel */
+        .control-deck {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 90%;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-deck.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .gift-card {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            color: #fff;
+            padding: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .gift-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+            transform: translateY(-4px);
+        }
+
+        .gift-card span {
+            font-size: 1.8rem;
+        }
+
+        /* Sidebar & Statistics */
+        .panel {
+            background-color: var(--card-bg);
+            border: 2px solid #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .metric-card {
+            background: #0f172a;
+            padding: 16px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent-green);
+        }
+
+        .metric-title {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        /* Event Toast Logs */
+        .feedback-toast {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 100;
+        }
+
+        .toast-success { background: var(--accent-green); color: #fff; }
+        .toast-fail { background: var(--accent-pink); color: #fff; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Doctor Gift Hospital</h1>
+        <p class="subtitle">Heal incoming patients with matching interactive treatments</p>
+    </header>
+
+    <div class="game-grid">
+        <div class="stage">
+            <div class="feedback-toast" id="toast"></div>
+            
+            <div class="speech-bubble" id="speech">"I don't feel too well..."</div>
+
+            <div class="character-lane" id="patient-container">
+                <div class="char-sprite" id="patient-emoji">🧑‍🎤</div>
+            </div>
+
+            <div class="control-deck" id="actions">
+                <button class="gift-card" onclick="submitGift('Medicine')"><span>💊</span>Pills</button>
+                <button class="gift-card" onclick="submitGift('Plaster')"><span>🩹</span>Bandage</button>
+                <button class="gift-card" onclick="submitGift('Teddy Bear')"><span>🧸</span>Plushie</button>
+                <button class="gift-card" onclick="submitGift('Hot Soup')"><span>🍲</span>Soup</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2 style="font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; color: var(--border-glow)">Hospital Status</h2>
+            
+            <div class="metric-card">
+                <div class="metric-title">Discharged Patients</div>
+                <div class="metric-value" id="score-ui">0</div>
+            </div>
+
+            <div class="metric-card" style="border-left-color: var(--accent-pink);">
+                <div class="metric-title">Hospital Rating</div>
+                <div class="metric-value" id="rating-ui">100%</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configurable Database
+        const dataset = [
+            { emoji: "🤒", phrase: "Ugh... my throat hurts and I can't stop freezing!", solution: "Hot Soup" },
+            { emoji: "🤕", phrase: "Ouch! My head is totally throbbing right now.", solution: "Medicine" },
+            { emoji: "😭", phrase: "I'm just so lonely and scared of doctors...", solution: "Teddy Bear" },
+            { emoji: "🩸", phrase: "Help! I scraped my knee running outside!", solution: "Plaster" }
+        ];
+
+        // State Machine variables
+        let score = 0;
+        let rating = 100;
+        let currentTarget = {};
+        let isProcessing = false;
+
+        const container = document.getElementById('patient-container');
+        const sprite = document.getElementById('patient-emoji');
+        const bubble = document.getElementById('speech');
+        const deck = document.getElementById('actions');
+        const toast = document.getElementById('toast');
+
+        // Logic loop initialization
+        function spawnPatient() {
+            if(rating <= 0) {
+                alert("Game Over! The hospital rating hit 0%. Refresh to restart!");
+                return;
+            }
+
+            isProcessing = false;
+            // Pick random patient properties
+            currentTarget = dataset[Math.floor(Math.random() * dataset.length)];
+            
+            // Set up character state configuration
+            sprite.innerText = currentTarget.emoji;
+            bubble.innerText = currentTarget.phrase;
+            
+            // Reset transforms & begin walk animation sequence
+            container.style.transition = "none";
+            container.style.left = "-150px";
+            container.classList.add('walking');
+
+            // Force browser layout flush before running animation transition step
+            container.offsetHeight; 
+
+            // Move to center of screen layout
+            container.style.transition = "left 2.5s cubic-bezier(0.1, 0.45, 0.1, 1)";
+            container.style.left = "calc(50% - 60px)";
+
+            // Trigger talking state on walk completion
+            setTimeout(() => {
+                container.classList.remove('walking');
+                bubble.classList.add('visible');
+                deck.classList.add('active');
+            }, 2550);
+        }
+
+        // Action valuation matching core logic
+        function submitGift(selection) {
+            if (isProcessing) return;
+            isProcessing = true;
+
+            // Retract interface deck and dialogue box
+            deck.classList.remove('active');
+            bubble.classList.remove('visible');
+
+            // Compare user selection with accurate dataset entry
+            if (selection === currentTarget.solution) {
+                score++;
+                document.getElementById('score-ui').innerText = score;
+                showToast("Perfect Care! +1 Healed", true);
+            } else {
+                rating = Math.max(0, rating - 20);
+                document.getElementById('rating-ui').innerText = `${rating}%`;
+                showToast("Wrong Treatment! Rating Dropped", false);
+            }
+
+            // Animate character walking off the right side of the screen
+            setTimeout(() => {
+                container.classList.add('walking');
+                container.style.transition = "left 1.8s ease-in";
+                container.style.left = "110%";
+                
+                // Clear state and queue another patient
+                setTimeout(spawnPatient, 2000);
+            }, 1200);
+        }
+
+        function showToast(msg, isSuccess) {
+            toast.innerText = msg;
+            toast.className = `feedback-toast ${isSuccess ? 'toast-success' : 'toast-fail'}`;
+            toast.style.opacity = "1";
+            setTimeout(() => toast.style.opacity = "0", 2500);
+        }
+
+        // Boot-up runtime engine step
+        window.onload = spawnPatient;
+    </script>
+</body>
+</html>
+<header>
+    <h1>Doctor Gift Hospital</h1>
+    <p class="subtitle">Heal incoming patients with matching interactive treatments</p>
+    <p style="color: var(--border-glow); margin-top: 10px; font-weight: bold;">Made by Godwin Chukwudubem Michael</p>
+</header>
